@@ -1,0 +1,29 @@
+# Local publication files and the copy manifest
+/local_archive/
+
+# Experimental inputs and generated outputs
+/data/*
+!/data/README.md
+/outputs/
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Editor, operating-system, and Office temporary files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+~$*
+*.tmp
+
+# Local environment configuration
+.env
+.env.*
+!.env.example

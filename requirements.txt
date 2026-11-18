@@ -1,0 +1,10 @@
+# Imports used by manual_mask.py and 3d_DIC.py.
+# Original versions were not recorded; this is not a validated lockfile.
+numpy
+opencv-python
+piexif
+plyfile
+matplotlib
+scipy
+seaborn
+pyvista
