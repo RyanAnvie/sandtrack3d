@@ -2,7 +2,7 @@
 
 ## Before running
 
-The scripts were copied without changing their contents. They execute work at module level, open graphical windows, and retain the original absolute Windows paths. Importing them is not a safe way to inspect their functions without also executing the surrounding code.
+The three original scripts were copied without changing their contents. They execute work at module level, open graphical windows, and retain the original absolute Windows paths. Importing them is not a safe way to inspect their functions without also executing the surrounding code.
 
 Install the dependencies described in the [README](../README.md), provide the [external data](../data/README.md), and edit the relevant paths directly in the scripts. No command-line interface or automatic dataset setup was added.
 
@@ -49,6 +49,20 @@ Review `vtk_files`, `output_dir`, every `root_dir`, `output_video_path`, the PLY
 
 This file already uses `joblib` parallel computation and several visualization backends. These choices, the original frame selections, and the numerical parameters were preserved.
 
+## `render_sand_flow_video.py`
+
+This added script uses the original sand-flow image/PLY sequence in `image_collection_mask`. It computes image-guided 3D displacement between adjacent frames, then renders the point cloud on the left and displacement colors on the right. Configure `input_folder` and, when needed, `openmvg_converter` near the top of the script, then run from the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\render_sand_flow_video.py
+```
+
+The script uses NumPy, OpenCV, SciPy, plyfile, and Matplotlib's colormap table from the existing requirements. It does not require VTK/PyVista for rendering. FFmpeg must be on `PATH`. OpenMVG's `ConvertSfM_DataFormat` executable exports camera data from `robust.bin` where `robust.json` is absent; exports are written to the ignored `outputs/sand_flow_cache/`, never to the input folders.
+
+The default range is source frames 1 through 1499. Frame 0 has no matching camera image and frame 1500 has no dense reconstruction in the supplied dataset. Each output image uses a source frame and its successor, so the full video has 1498 frames. Keep `recalculate_displacements = True` for normal use. Setting it to `False` reuses the analysis cache for rerendering the same data and settings; do not use stale caches after changing analysis parameters. Reruns replace this script's generated video assets.
+
+Read [the video method and limitations](../videos/README.md), especially the retained ×966 scale, gray unmatched points, forward/backward validation, and nonlinear fixed color range.
+
 ## Validation limits
 
-File-copy integrity and Python syntax were checked during organization. The external datasets and original dependency versions were unavailable in the source folder, so package compatibility, GUI behavior, complete execution, and scientific results were not tested. No figures were regenerated.
+File-copy integrity and Python syntax were checked during organization. Complete execution and scientific results of the three original scripts were not validated. No original figures were regenerated. The added sand-flow renderer was executed separately on the actual image/PLY sequence; numerical correspondence checks are described in the video README.
