@@ -2,9 +2,9 @@
 
 ## Before running
 
-The three original scripts were copied without changing their contents. They execute work at module level, open graphical windows, and retain the original absolute Windows paths. Importing them is not a safe way to inspect their functions without also executing the surrounding code.
+`manual_mask.py`, `3d_DIC.py`, and `find_point_distance.py` execute work at module level, open graphical windows, and use experiment-specific Windows paths. Importing them also executes the surrounding code.
 
-Install the dependencies described in the [README](../README.md), provide the [external data](../data/README.md), and edit the relevant paths directly in the scripts. No command-line interface or automatic dataset setup was added.
+Install the dependencies described in the [README](../README.md), provide the [external data](../data/README.md), and edit the paths and experiment settings directly in the scripts.
 
 Keep derived output separate from input data. You can create an ignored `outputs/` directory at the repository root and use it as the working directory for relative output filenames. Absolute output paths inside each script must also be edited; changing the working directory does not redirect them.
 
@@ -33,13 +33,13 @@ The script contains multiple `#%%` research sections, repeated setup code, image
 | `image_90`, `image_91` | The matching camera images for the two frames. |
 | Camera/view indexes, ROI and tracking parameters | Existing experiment-specific selections that must agree with the supplied data. |
 
-The variable suffixes refer to an earlier experiment: the preserved paths actually select frames 0130 and 0131. Verify the paths themselves when selecting a frame pair. Both setup sections must be updated consistently.
+The variable suffixes refer to an earlier experiment: the configured paths select frames 0130 and 0131. Verify the paths themselves when selecting a frame pair. Both setup sections must be updated consistently.
 
 This script reads `image_json_001.jpg`, whereas `manual_mask.py` currently selects and writes the `002` camera images. The supplied scripts do not establish an automatic sequence from masking to reconstruction to tracking. Prepare all required views and reconstruction products separately.
 
-The code reads OpenMVG camera centers and computes translation as `t = -R @ C`; projection uses the camera matrix and homogeneous normalization. Existing geometry, view indexing, distortion handling, filtering, and visualization settings were left unchanged and have not been revalidated for another dataset.
+The code reads OpenMVG camera centers and computes translation as `t = -R @ C`; projection uses the camera matrix and homogeneous normalization. Check coordinate conventions, view indexing, distortion handling, and filtering settings when configuring a different dataset.
 
-Relative output names include `strict_filtered_window_with_points.png` and `dic_visualization.jpg`. Set the working directory to `outputs/` when evaluating sections so that generated files remain separate from the preserved figures. GUI displays require an interactive desktop.
+Relative output names include `strict_filtered_window_with_points.png` and `dic_visualization.jpg`. Set the working directory to `outputs/` when evaluating sections to keep generated files separate from the example figures. GUI displays require an interactive desktop.
 
 ## `find_point_distance.py`
 
@@ -47,11 +47,11 @@ This file combines several exploratory workflows, including VTU loading, nearest
 
 Review `vtk_files`, `output_dir`, every `root_dir`, `output_video_path`, the PLY/JSON/image paths, `json_file`, and `ply_filename`. Search the entire file for drive-letter paths because some paths occur directly inside function calls. Configure output destinations before running sections that save VTU, AVI, JPEG, or PLY files.
 
-This file already uses `joblib` parallel computation and several visualization backends. These choices, the original frame selections, and the numerical parameters were preserved.
+Some calculations use `joblib` parallel computation, and the visualization sections use several plotting backends. Install the additional dependencies in `requirements-experiments.txt` for these sections.
 
 ## `render_sand_flow_video.py`
 
-This added script uses the original sand-flow image/PLY sequence in `image_collection_mask`. It computes image-guided 3D displacement between adjacent frames, then renders the point cloud on the left and displacement colors on the right. Configure `input_folder` and, when needed, `openmvg_converter` near the top of the script, then run from the repository root:
+This script uses the sand-flow image/PLY sequence in `image_collection_mask`. It computes image-guided 3D displacement between adjacent frames, then renders the point cloud on the left and displacement colors on the right. Configure `input_folder` and, when needed, `openmvg_converter` near the top of the script, then run from the repository root:
 
 ```powershell
 .\.venv\Scripts\python.exe .\scripts\render_sand_flow_video.py
@@ -59,10 +59,10 @@ This added script uses the original sand-flow image/PLY sequence in `image_colle
 
 The script uses NumPy, OpenCV, SciPy, plyfile, and Matplotlib's colormap table from the existing requirements. It does not require VTK/PyVista for rendering. FFmpeg must be on `PATH`. OpenMVG's `ConvertSfM_DataFormat` executable exports camera data from `robust.bin` where `robust.json` is absent; exports are written to the ignored `outputs/sand_flow_cache/`, never to the input folders.
 
-The default range is source frames 1 through 1499. Frame 0 has no matching camera image and frame 1500 has no dense reconstruction in the supplied dataset. Each output image uses a source frame and its successor, so the full video has 1498 frames. Keep `recalculate_displacements = True` for normal use. Setting it to `False` reuses the analysis cache for rerendering the same data and settings; do not use stale caches after changing analysis parameters. Reruns replace this script's generated video assets.
+The default settings are `first_frame = 1` and `last_frame = 1001`. The video displays source frames 1 through 1000; frame 1001 supplies the destination points for the final displacement calculation. The result has 1000 video frames and lasts approximately 33.33 seconds at 30 fps. Keep `recalculate_displacements = True` for normal use. Setting it to `False` reuses the analysis cache for rerendering the same data and settings; do not use stale caches after changing analysis parameters. Reruns replace this script's generated video assets.
 
 Read [the video method and limitations](../videos/README.md), especially the retained ×966 scale, gray unmatched points, forward/backward validation, and nonlinear fixed color range.
 
 ## Validation limits
 
-File-copy integrity and Python syntax were checked during organization. Complete execution and scientific results of the three original scripts were not validated. No original figures were regenerated. The added sand-flow renderer was executed separately on the actual image/PLY sequence; numerical correspondence checks are described in the video README.
+The sand-flow renderer was executed on the image/PLY sequence, with numerical correspondence checks described in the video README. These checks do not validate every experimental section in `3d_DIC.py` or `find_point_distance.py`, or independently establish the experiment's physical calibration.

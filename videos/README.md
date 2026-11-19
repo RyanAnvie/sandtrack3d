@@ -9,22 +9,20 @@
 - **Left:** the source frame's original PLY point cloud and RGB attributes, viewed through the calibrated middle camera (`image_json_001.jpg`).
 - **Right:** the same source-frame geometry, colored by estimated Euclidean 3D displacement to the next frame. Gray means the point has no accepted correspondence; pale yellow represents low measured displacement.
 - Both panels use the same fixed framing and depth ordering. Point footprints are 2 × 2 output pixels. No surface interpolation, smoothing, or source-geometry editing is performed.
-- The color range is fixed from zero to the largest accepted displacement over the full sequence. The mapping is `(displacement / maximum) ** 0.3`, following the original script's nonlinear visualization. Tick labels give the actual displacement values at those colors. No displacement clipping or per-frame color rescaling is used.
+- The color range is fixed from zero to the largest accepted displacement over the displayed sequence. The mapping is `(displacement / maximum) ** 0.3`. Tick labels give the actual displacement values at those colors. No displacement clipping or per-frame color rescaling is used.
 
 ## Files
 
 | File | Content |
 | --- | --- |
-| `sand_flow_displacement.mp4` | H.264, 1920 × 1080, 1498 frames at 30 fps; approximately 49.93 seconds. |
+| `sand_flow_displacement.mp4` | H.264, 1920 × 1080, 1000 frames at 30 fps; approximately 33.33 seconds. |
 | `sand_flow_preview.gif` | Full-duration looping preview, 640 × 360 at 5 fps. |
 | `sand_flow_poster.jpg` | The rendered frame showing the 0130→0131 interval used in the original script. |
 | `sand_flow_metadata.json` | Source hashes, camera parameters, match counts, rejection limits, displacement summaries, and exact rendering settings. |
 
 The MP4 uses H.264 CRF 26 with a 12 Mbit/s maximum rate and a 24 Mbit buffer to keep the full sequence practical to include in the repository. The poster is saved directly from the rendered frame before video compression.
 
-The earlier sand/rock-box demonstration was from a different dataset. Its assets and renderer are kept only in the ignored local archive and are superseded by this video.
-
-## Actual input data
+## Input data
 
 The supplied local dataset is:
 
@@ -37,10 +35,10 @@ E:\SynologyDrive\ryan\image_collection_mask\
             robust.bin
             robust.json          # Present for some frames
     ...
-    image_set_1499\
+    image_set_1001\
 ```
 
-The display covers every adjacent pair from 0001→0002 through 1498→1499. Frame 0 lacks its camera image, and frame 1500 lacks the dense reconstruction. No intermediate available frame is skipped. Playback FPS is a presentation choice; acquisition timestamps were not established.
+The video displays source frames 0001 through 1000, covering the adjacent pairs 0001→0002 through 1000→1001. Frame 1001 supplies the destination points for the final displacement calculation. No intermediate frame is skipped. Playback FPS is a presentation choice; acquisition timestamps were not established.
 
 Camera parameters are read by view/intrinsic/pose IDs. Missing JSON is exported from the corresponding original `robust.bin` with OpenMVG's `-V -I -E` options. All selected frames' intrinsics, distortion, rotations, and camera centers are checked against each other. The files agree in this dataset, keeping the projection and coordinate frame consistent.
 
@@ -54,7 +52,7 @@ Camera parameters are read by view/intrinsic/pose IDs. Missing JSON is exported 
 
 The ×966 conversion and millimeter label are retained from the original author's `3d_DIC.py`; that physical calibration was **not independently re-established**. The output is an image-guided 3D displacement estimate, not ground-truth grain motion. Reconstruction noise, occlusion, and ambiguous correspondences can still produce residual errors, including large boundary values. The full accepted range is retained in the color mapping. Pairwise matching is recomputed for each interval; this is not a persistent particle identity or a cumulative-displacement trajectory through the entire experiment.
 
-All changes relative to the exploratory script are explicit: source-index preservation, absolute residual quantiles, and a backward consistency check using the same 95% rule. Original scripts and source files are untouched. Their other original numerical workflows have not been validated by rendering this video.
+The renderer preserves source-point indices and uses absolute residual quantiles and a backward consistency check with the 95% rule. These checks reduce correspondence errors without modifying the input point clouds.
 
 ## Reproduce
 
